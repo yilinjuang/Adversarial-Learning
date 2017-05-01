@@ -10,9 +10,9 @@ Individual Study under Prof. S. D. Lin.
 
 ## Black-box Attack
 Forked from [mnist_tutorial_tf](https://github.com/openai/cleverhans/blob/master/tutorials/mnist_tutorial_tf.md). Use FGSM attack against ensemble methods including
-    - [Adaptive Boosting](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html#sklearn.ensemble.AdaBoostClassifier)
-    - [Gradient Boosting](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html#sklearn.ensemble.GradientBoostingClassifier)
-    - [Random Forest](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html#sklearn.ensemble.RandomForestClassifier)
+- [Adaptive Boosting](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html#sklearn.ensemble.AdaBoostClassifier)
+- [Gradient Boosting](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html#sklearn.ensemble.GradientBoostingClassifier)
+- [Random Forest](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html#sklearn.ensemble.RandomForestClassifier)
 
 ### Result
 [Raw Data](https://docs.google.com/spreadsheets/d/1JOjMBLfvOUO2KTs3KoKVAsflTY2UgGV9KIjrm5FAA5Q/pubhtml)
