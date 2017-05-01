@@ -16,10 +16,10 @@ Forked from [mnist_tutorial_tf](https://github.com/openai/cleverhans/blob/master
 
 ### Result
 [Raw Data](https://docs.google.com/spreadsheets/d/1JOjMBLfvOUO2KTs3KoKVAsflTY2UgGV9KIjrm5FAA5Q/pubhtml)
-<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/adaboost_acc_dep.png?raw=true" alt="Adaptive Boosting Accuracy-Max_Depth" style="max-width: 100%;">
-<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/adaboost_acc_est.png?raw=true" alt="Adaptive Boosting Accuracy-N_Estimators" style="max-width: 100%;">
-<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/gradboost_acc_dep.png?raw=true" alt="Gradient Boosting Accuracy-Max_Depth" style="max-width: 100%;">
-<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/gradboost_acc_est.png?raw=true" alt="Gradient oosting Accuracy-N_Estimators" style="max-width: 100%;">
-<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/randforest_acc_dep.png?raw=true" alt="Random Forest Accuracy-Max_Depth" style="max-width: 100%;">
-<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/randforest_acc_est.png?raw=true" alt="Random Forest Accuracy-N_Estimators" style="max-width: 100%;">
+<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/adaboost_acc_dep.png?raw=true" alt="Adaptive Boosting Accuracy-Max_Depth">
+<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/adaboost_acc_est.png?raw=true" alt="Adaptive Boosting Accuracy-N_Estimators">
+<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/gradboost_acc_dep.png?raw=true" alt="Gradient Boosting Accuracy-Max_Depth">
+<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/gradboost_acc_est.png?raw=true" alt="Gradient oosting Accuracy-N_Estimators">
+<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/randforest_acc_dep.png?raw=true" alt="Random Forest Accuracy-Max_Depth">
+<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/randforest_acc_est.png?raw=true" alt="Random Forest Accuracy-N_Estimators">
 
