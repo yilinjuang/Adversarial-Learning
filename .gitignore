@@ -1,6 +1,10 @@
 .DS_Store
 ._.DS_Store
+__pycache__/
+ae_model/
 example/
 log/
+MNIST_data/
 model/
 venv/
+*.png

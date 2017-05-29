@@ -28,6 +28,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
+import autoencoder
 
 # Argparse.
 def is_not_nn():
@@ -74,6 +75,8 @@ svm_parser.add_argument("--kernel", default='rbf',
         help="the kernel type")
 svm_parser.add_argument("C", type=float,
         help="the penalty parameter C of the error term")
+parser.add_argument("--ae", "--autoencoder", action="store_true",
+        help="use a denoising autoencoder in the beginning")
 args = parser.parse_args()
 
 # Generate model name.
@@ -95,6 +98,8 @@ elif args.alg == "svm":
 else:
     print("Error: unknown algorithm.")
     sys.exit(1)
+if args.ae:
+    model_name += "_ae"
 print(model_name)
 
 # Flags.
@@ -156,7 +161,15 @@ def prep_cnn_bbox(sess, x, y, X_train, Y_train, X_test, Y_test):
         'learning_rate': FLAGS.learning_rate
     }
     model_train(sess, x, y, predictions, X_train, Y_train,
-                verbose=False, args=train_params)
+                init_all=False, verbose=False, args=train_params)
+    # """
+    if args.ae:
+        print("Denoising...")
+        num_data = X_test.shape[0]
+        autoencoder.visualize(sess, X_test.reshape(num_data, -1), "bbox")
+        filtered_data = autoencoder.run(sess, X_test.reshape(num_data, -1))
+        X_test = filtered_data.reshape(num_data, 28, 28, 1)
+    # """
 
     # Print out the accuracy on legitimate data
     eval_params = {'batch_size': FLAGS.batch_size}
@@ -282,7 +295,7 @@ def train_substitute(sess, x, y, bbox_preds, X_sub, Y_sub):
             'learning_rate': FLAGS.learning_rate
         }
         model_train(sess, x, y, preds_sub, X_sub, to_categorical(Y_sub),
-                    verbose=False, args=train_params)
+                    init_all=False, verbose=False, args=train_params)
 
         # If we are not at last substitute training iteration, augment dataset
         if rho < FLAGS.data_aug - 1:
@@ -293,6 +306,13 @@ def train_substitute(sess, x, y, bbox_preds, X_sub, Y_sub):
             # Label the newly generated synthetic points using the black-box
             Y_sub = np.hstack([Y_sub, Y_sub])
             X_sub_prev = X_sub[int(len(X_sub)/2):]
+            # First feed forward a denoising autoencoder.
+            if args.ae:
+                print("Denoising...")
+                num_data = X_sub_prev.shape[0]
+                autoencoder.visualize(sess, X_sub_prev.reshape(num_data, -1), "sub{}".format(rho))
+                filtered_data = autoencoder.run(sess, X_sub_prev.reshape(num_data, -1))
+                X_sub_prev = filtered_data.reshape(num_data, 28, 28, 1)
             if args.alg == "cnn":
                 eval_params = {'batch_size': FLAGS.batch_size}
                 bbox_val = batch_eval(sess, [x], [bbox_preds], [X_sub_prev],
@@ -368,10 +388,14 @@ def main(argv=None):
     with open(example_file, "wb") as f:
         pickle.dump(X_test_adv, f)
 
+    if args.ae:
+        print("Denoising...")
+        num_data = X_test_adv.shape[0]
+        autoencoder.visualize(sess, X_test_adv.reshape(num_data, -1), "adv")
+        filtered_data = autoencoder.run(sess, X_test_adv.reshape(num_data, -1))
+        X_test_adv = filtered_data.reshape(num_data, 28, 28, 1)
     # Evaluate the accuracy of the "black-box" model on adversarial examples
     if args.alg == "cnn":
-        # accuracy = model_eval(sess, x, y, model(x_adv_sub), X_test, Y_test,
-                              # args=eval_params)
         accuracy = model_eval(sess, x, y, bbox, X_test_adv, Y_test,
                               args=eval_params)
     elif is_not_nn():
