@@ -28,8 +28,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
-import autoencoder
-
 # Argparse.
 def is_not_nn():
     return args.alg != "cnn"
@@ -75,8 +73,8 @@ svm_parser.add_argument("--kernel", default='rbf',
         help="the kernel type")
 svm_parser.add_argument("C", type=float,
         help="the penalty parameter C of the error term")
-parser.add_argument("--ae", "--autoencoder", action="store_true",
-        help="use a denoising autoencoder in the beginning")
+parser.add_argument("--ae", "--autoencoder", type=str,
+        help="use the denoising autoencoder in the beginning")
 args = parser.parse_args()
 
 # Generate model name.
@@ -100,6 +98,8 @@ else:
     sys.exit(1)
 if args.ae:
     model_name += "_ae"
+    import autoencoder
+
 print(model_name)
 
 # Flags.
@@ -346,6 +346,8 @@ def main(argv=None):
     # sess = tf.Session()
     keras.backend.set_session(sess)
 
+    autoencoder.restore(sess, args.ae) # Restore model weights from previously saved model
+
     # Get MNIST data
     X_train, Y_train, X_test, Y_test = data_mnist()
 
@@ -407,7 +409,10 @@ def main(argv=None):
 
     log_file = "log/{}.log".format(model_name)
     with open(log_file, "a") as f:
-        f.write("Test adversarial accuracy = {}\n".format(accuracy))
+        if args.ae:
+            f.write("{}. Test adversarial accuracy = {}\n".format(args.ae, accuracy))
+        else:
+            f.write("Test adversarial accuracy = {}\n".format(accuracy))
 
 
 if __name__ == '__main__':
