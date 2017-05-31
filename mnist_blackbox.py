@@ -346,7 +346,8 @@ def main(argv=None):
     # sess = tf.Session()
     keras.backend.set_session(sess)
 
-    autoencoder.restore(sess, args.ae) # Restore model weights from previously saved model
+    if args.ae:
+        autoencoder.restore(sess, args.ae) # Restore model weights from previously saved model
 
     # Get MNIST data
     X_train, Y_train, X_test, Y_test = data_mnist()
