@@ -126,7 +126,11 @@ def train():
     print("Optimization Finished!")
     test_c = sess.run(cost, feed_dict={X: add_noise(mnist.test.images),
                                        Y: mnist.test.images})
-    print("Test Cost = {:.6f}".format(test_c))
+    log_file = "log/ae_{}.log".format(model_name)
+    with open(log_file, "a") as f:
+        content = "Test Cost = {:.6f}\n".format(test_c)
+        print(content, end="")
+        f.write(content)
 
     # Save model weights to disk
     save_path = saver.save(sess, model_path)
