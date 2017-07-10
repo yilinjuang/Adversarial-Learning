@@ -223,6 +223,7 @@ def main(argv=None):
     adv_acc = cal_accuracy(adv_preds, Y_test)
     print("Test accuracy of oracle on adv examples = {}".format(adv_acc))
 
+    # Save images.
     base_dir = "{}_epoch{}_hold{}_eps{}".format(
             DATASET, FLAGS.nb_epochs, FLAGS.holdout, FLAGS.attack_eps)
     base_dir += "_D" if DENOISE else "_ND"
