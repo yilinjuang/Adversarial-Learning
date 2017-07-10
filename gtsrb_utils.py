@@ -67,7 +67,7 @@ def read_testing_data(rootpath):
     images = [] # images
     labels = [] # corresponding labels
     # loop over all 42 classes
-    with open(rootpath + '/' + "GT-final_test.csv") as gtFile:
+    with open(os.path.join(rootpath, "GT-final_test.csv")) as gtFile:
         gtReader = csv.reader(gtFile, delimiter=';') # csv parser for annotations file
         next(gtReader) # skip header
         # loop over all images in current annotations file
