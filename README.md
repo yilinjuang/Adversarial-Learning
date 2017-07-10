@@ -16,7 +16,7 @@ Forked from [mnist_tutorial_tf](https://github.com/openai/cleverhans/blob/master
 
 ### Result
 [Raw Data](https://docs.google.com/spreadsheets/d/1JOjMBLfvOUO2KTs3KoKVAsflTY2UgGV9KIjrm5FAA5Q/pubhtml)
-<img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/adaboost_acc_dep.png?raw=true" alt="Adaptive Boosting Accuracy-Max_Depth">
+![Adaptive Boosting Accuracy-Max_Depth](assets/adaboost_acc_dep.png)
 <img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/adaboost_acc_est.png?raw=true" alt="Adaptive Boosting Accuracy-N_Estimators">
 <img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/gradboost_acc_dep.png?raw=true" alt="Gradient Boosting Accuracy-Max_Depth">
 <img src="https://github.com/frankyjuang/Adversarial-Learning/blob/master/chart/gradboost_acc_est.png?raw=true" alt="Gradient oosting Accuracy-N_Estimators">
