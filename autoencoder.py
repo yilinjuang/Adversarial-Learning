@@ -12,8 +12,8 @@ n_hidden_2 = 128 # 2nd layer num features
 n_input = 784 # MNIST data input (img shape: 28*28)
 
 # Training Parameters
-training_epochs = int(sys.argv[1])
-# training_epochs = 5
+# training_epochs = int(sys.argv[1])
+training_epochs = 5
 # Model
 model_name = "noise_epoch{}_{}_{}".format(training_epochs, n_hidden_1, n_hidden_2)
 model_path = "./ae_model/{}.model".format(model_name)

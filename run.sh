@@ -24,17 +24,18 @@
 for times in {1..1}
 do
     #echo mode = $MODE, max_depth = $MAX_DEP, n_estimators = $N_EST
+    #python mnist_blackbox.py cnn
     #python mnist_blackbox.py $MODE $C
     #for MAX_DEP in {10..34..3}
-    #for MODEL in "epoch60_256_128" "epoch100_256_128" "epoch200_256_128"
-    for EPOCH in 30 60 100 200
+    for MODEL in "noise_epoch500_256_128"
+    #for EPOCH in 30 60 100 200
     do
         #echo mode = $MODE, n_estimators = $N_EST, type_estimator = $T_EST, max_depth = $MAX_DEP
         #python mnist_blackbox.py $MODE $N_EST $T_EST $MAX_DEP
-        #echo model = $MODEL
-        #python mnist_blackbox.py --ae $MODEL cnn
-        echo epoch = $EPOCH
-        python autoencoder.py $EPOCH
+        echo model = $MODEL
+        python mnist_blackbox.py --ae $MODEL cnn
+        #echo epoch = $EPOCH
+        #python autoencoder.py $EPOCH
         #echo max_depth = $MAX_DEP
         #python mnist_xgb.py $MAX_DEP
     done
