@@ -9,6 +9,8 @@ if len(sys.argv) < 2:
 import numpy as np
 import numpy.matlib
 
+import keras
+from keras import backend
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Flatten, Activation, SpatialDropout2D, Reshape
 from keras.layers.normalization import BatchNormalization
@@ -17,6 +19,9 @@ from keras.layers.convolutional import Conv2D
 from keras.layers.local import LocallyConnected2D
 from keras.optimizers import SGD, Adam
 from keras.callbacks import ModelCheckpoint
+
+import tensorflow as tf
+from tensorflow.python.platform import app
 
 from cleverhans.utils_mnist import data_mnist
 
@@ -79,41 +84,55 @@ print("Cx_train: {}".format(Cx_train.shape))
 print("Nx_test: {}".format(Nx_test.shape))
 print("Cx_test: {}".format(Cx_test.shape))
 
-start_time = time.time()
+def main(argv=None):
+    start_time = time.time()
 
-print('model building...')
-model = Sequential()
+    tf.set_random_seed(1234)
 
-model.add(Conv2D(32, (5, 5), padding='same', data_format='channels_last', input_shape=IMG_DIM))
-model.add(BatchNormalization(axis=-1))
-model.add(ELU())
-model.add(Dropout(0.07))
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config=config)
+    keras.backend.set_session(sess)
 
-model.add(Conv2D(64, (5, 5), padding='same',  data_format='channels_last'))
-model.add(BatchNormalization(axis=-1))
-model.add(ELU())
-model.add(Dropout(0.07))
+    print('model building...')
+    model = Sequential()
 
+    model.add(Conv2D(32, (5, 5), padding='same', data_format='channels_last', input_shape=IMG_DIM))
+    model.add(BatchNormalization(axis=-1))
+    model.add(ELU())
+    model.add(Dropout(0.07))
 
-model.add(Conv2D(64, (3, 3), padding='same',  data_format='channels_last'))
-model.add(BatchNormalization(axis=-1))
-model.add(ELU())
-model.add(Dropout(0.07))
+    model.add(Conv2D(64, (5, 5), padding='same',  data_format='channels_last'))
+    model.add(BatchNormalization(axis=-1))
+    model.add(ELU())
+    model.add(Dropout(0.07))
 
-model.add(Conv2D(IMG_DIM[-1], (3, 3),  padding='same', data_format='channels_last'))
+    model.add(Conv2D(64, (3, 3), padding='same',  data_format='channels_last'))
+    model.add(BatchNormalization(axis=-1))
+    model.add(ELU())
+    model.add(Dropout(0.07))
 
-with open('{}.json'.format(sys.argv[1]), 'w') as f:    # save the model
-    f.write(model.to_json())
+    model.add(Conv2D(IMG_DIM[-1], (3, 3),  padding='same', data_format='channels_last'))
 
-sgd = SGD(lr=0.05, decay=5*1e-8, momentum=0.9, nesterov=True)
-model.compile(loss='mse', optimizer="Nadam", metrics=['accuracy'])
+    with open('{}.json'.format(sys.argv[1]), 'w') as f:    # save the model
+        f.write(model.to_json())
 
-print('training...')
-checkpointer = ModelCheckpoint(filepath='{}.hdf5'.format(sys.argv[1]), verbose=1, save_best_only=True, mode='min')
-model.fit(Nx_train, Cx_train, epochs=epoch, batch_size=500, verbose=1, shuffle=True, validation_data=(Nx_test,Cx_test), callbacks=[checkpointer])
+    sgd = SGD(lr=0.05, decay=5*1e-8, momentum=0.9, nesterov=True)
+    model.compile(loss='mse', optimizer="Nadam", metrics=['accuracy'])
 
-print('testing...')
-model.predict(Nx_test, verbose=1, batch_size=500)
+    print('training...')
+    checkpointer = ModelCheckpoint(filepath='{}.hdf5'.format(sys.argv[1]),
+                                   verbose=1,
+                                   save_best_only=True,
+                                   mode='min')
+    model.fit(Nx_train, Cx_train, epochs=epoch, batch_size=500, verbose=1,
+              shuffle=True, validation_data=(Nx_test,Cx_test),
+              callbacks=[checkpointer])
 
-end_time = time.time()
-print ('The code for this file ran for %.2fm' % ((end_time - start_time) / 60.))
+    print('testing...')
+    model.predict(Nx_test, verbose=1, batch_size=500)
+
+    print("Total running time: {:.2f}m".format((time.time()-start_time) / 60.))
+
+if __name__ == '__main__':
+    app.run()
