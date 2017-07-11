@@ -91,7 +91,7 @@ def main(argv=None):
     tf.set_random_seed(1234)
 
     config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
+    config.gpu_options.per_process_gpu_memory_fraction = 0.1
     sess = tf.Session(config=config)
     keras.backend.set_session(sess)
 
@@ -126,12 +126,12 @@ def main(argv=None):
                                    verbose=1,
                                    save_best_only=True,
                                    mode='min')
-    model.fit(Nx_train, Cx_train, epochs=epoch, batch_size=500, verbose=1,
+    model.fit(Nx_train, Cx_train, epochs=epoch, batch_size=128, verbose=1,
               shuffle=True, validation_data=(Nx_test,Cx_test),
               callbacks=[checkpointer])
 
     print('testing...')
-    model.predict(Nx_test, verbose=1, batch_size=500)
+    model.predict(Nx_test, verbose=1, batch_size=128)
 
     print("Total running time: {:.2f}m".format((time.time()-start_time) / 60.))
 
