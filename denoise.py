@@ -13,12 +13,11 @@ import numpy.matlib
 import keras
 from keras import backend
 from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Flatten, Activation, SpatialDropout2D, Reshape
+from keras.layers.advanced_activations import ELU
+from keras.layers.convolutional import Conv2D, UpSampling2D
+from keras.layers.core import Dropout
 from keras.layers.normalization import BatchNormalization
-from keras.layers.advanced_activations import ELU, PReLU, LeakyReLU
-from keras.layers.convolutional import Conv2D
-from keras.layers.local import LocallyConnected2D
-from keras.optimizers import SGD, Adam
+from keras.layers.pooling import MaxPooling2D
 from keras.callbacks import ModelCheckpoint
 
 import tensorflow as tf
@@ -85,40 +84,82 @@ print("Cx_train: {}".format(Cx_train.shape))
 print("Nx_test: {}".format(Nx_test.shape))
 print("Cx_test: {}".format(Cx_test.shape))
 
+
+def denoise_model():
+    print('Build denoise model')
+    model = Sequential()
+
+    layers = [Conv2D(32, (5, 5), padding='same', input_shape=IMG_DIM),
+              BatchNormalization(),
+              ELU(),
+              Dropout(0.07),
+
+              Conv2D(64, (5, 5), padding='same'),
+              BatchNormalization(),
+              ELU(),
+              Dropout(0.07),
+
+              Conv2D(64, (3, 3), padding='same'),
+              BatchNormalization(),
+              ELU(),
+              Dropout(0.07),
+
+              Conv2D(IMG_DIM[-1], (3, 3),  padding='same')]
+
+    for layer in layers:
+        model.add(layer)
+
+    return model
+
+
+def denoise_model_DAE():
+    print('Build DAE denoise model')
+    model = Sequential()
+
+    layers = [Conv2D(64, (3, 3), padding='same', input_shape=IMG_DIM),
+              BatchNormalization(),
+              ELU(),
+              MaxPooling2D(pool_size=(2, 2)),
+
+              Conv2D(64, (3, 3), padding='same'),
+              BatchNormalization(),
+              ELU(),
+              MaxPooling2D(pool_size=(2, 2)),
+
+              Conv2D(64, (3, 3), padding='same'),
+              BatchNormalization(),
+              ELU(),
+              UpSampling2D(size=(2, 2)),
+
+              Conv2D(64, (3, 3), padding='same'),
+              BatchNormalization(),
+              ELU(),
+              UpSampling2D(size=(2, 2)),
+
+              Conv2D(IMG_DIM[-1], (3, 3), activation="sigmoid", padding='same')]
+
+    for layer in layers:
+        model.add(layer)
+
+    return model
+
+
 def main(argv=None):
     start_time = time.time()
 
     tf.set_random_seed(1234)
 
     config = tf.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.1
+    config.gpu_options.per_process_gpu_memory_fraction = 0.2
     sess = tf.Session(config=config)
     keras.backend.set_session(sess)
 
-    print('model building...')
-    model = Sequential()
-
-    model.add(Conv2D(32, (5, 5), padding='same', data_format='channels_last', input_shape=IMG_DIM))
-    model.add(BatchNormalization(axis=-1))
-    model.add(ELU())
-    model.add(Dropout(0.07))
-
-    model.add(Conv2D(64, (5, 5), padding='same',  data_format='channels_last'))
-    model.add(BatchNormalization(axis=-1))
-    model.add(ELU())
-    model.add(Dropout(0.07))
-
-    model.add(Conv2D(64, (3, 3), padding='same',  data_format='channels_last'))
-    model.add(BatchNormalization(axis=-1))
-    model.add(ELU())
-    model.add(Dropout(0.07))
-
-    model.add(Conv2D(IMG_DIM[-1], (3, 3),  padding='same', data_format='channels_last'))
+    # model = denoise_model()
+    model = denoise_model_DAE()
 
     with open('{}.json'.format(sys.argv[2]), 'w') as f:    # save the model
         f.write(model.to_json())
 
-    sgd = SGD(lr=0.05, decay=5*1e-8, momentum=0.9, nesterov=True)
     model.compile(loss='mse', optimizer="Nadam", metrics=['accuracy'])
 
     print('training...')
