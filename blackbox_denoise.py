@@ -38,8 +38,33 @@ def oracle_model():
     return model
 
 
+def oracle_model_B_on_paper():
+    print("Define oracle model on paper")
+
+    model = Sequential()
+    input_shape = (FLAGS.nb_rows, FLAGS.nb_cols, FLAGS.nb_channels)
+
+    layers = [Conv2D(64, (2, 2), padding='same', input_shape=input_shape),
+              MaxPooling2D(pool_size=(2, 2)),
+              Conv2D(128, (2, 2), padding='same'),
+              MaxPooling2D(pool_size=(2, 2)),
+              Flatten(),
+              Dense(256),
+              Activation('relu'),
+              Dense(256),
+              Activation('relu'),
+              Dense(FLAGS.nb_classes),
+              Activation('softmax')]
+
+    for layer in layers:
+        model.add(layer)
+
+    return model
+
+
 def train_oracle(X_train, Y_train, X_val, Y_val):
-    model = oracle_model()
+    # model = oracle_model()
+    model = oracle_model_B_on_paper()
 
     print("Train oracle model")
     val = (X_val, Y_val) if not X_val is None else None
@@ -274,7 +299,7 @@ if __name__ == '__main__':
 
     # General flags
     flags.DEFINE_integer('batch_size', 128, 'Size of training/predicting batches')
-    flags.DEFINE_float('learning_rate', 0.001, 'Learning rate for training')
+    flags.DEFINE_float('learning_rate', 0.01, 'Learning rate for training')
 
     # Flags related to dataset
     if DATASET == "mnist":
