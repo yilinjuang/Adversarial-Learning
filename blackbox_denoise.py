@@ -2,6 +2,11 @@ import os
 import time
 import sys
 
+if len(sys.argv) < 3:
+    print("Error: Missing arguments")
+    print("Usage: blackbox_denoise.py <dataset-basedir> <denoise-model-basedir>")
+    sys.exit(1)
+
 import numpy as np
 import scipy.misc
 
@@ -189,9 +194,9 @@ def main(argv=None):
         X_val = Y_val = None
     elif DATASET == "gtsrb":
         # http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
-        X_train, Y_train = read_training_data("/data/yljuang/GTSRB/Final_Training/Images/")
+        X_train, Y_train = read_training_data(os.path.join(sys.argv[1], "Final_Training/Images/"))
         # (39209, 32, 32, 3), (39209, 43)
-        X_test, Y_test = read_testing_data("/data/yljuang/GTSRB/Final_Test/Images/")
+        X_test, Y_test = read_testing_data(os.path.join(sys.argv[1], "Final_Test/Images/"))
         # (12630, 32, 32, 3), (12630, 43)
         X_val = X_train[35000:39000]
         Y_val = Y_train[35000:39000]
@@ -202,9 +207,9 @@ def main(argv=None):
 
     if DENOISE or DENOISE_TRAIN:
         print("Load denoise model...")
-        with open('model/{}.json'.format(DATASET), 'r') as f:
+        with open(os.path.join(sys.argv[2], ".json"), 'r') as f:
             denoise_model = model_from_json(f.read())
-        denoise_model.load_weights('model/{}.hdf5'.format(DATASET))
+        denoise_model.load_weights(os.path.join(sys.argv[2], ".hdf5"))
     else:
         denoise_model = None
 
