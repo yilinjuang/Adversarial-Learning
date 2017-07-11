@@ -9,7 +9,7 @@ import keras
 from keras import backend
 from keras.utils.np_utils import to_categorical
 from keras.models import Sequential, model_from_json
-from keras.layers import Dense, Flatten, Activation, Dropout
+from keras.layers import Activation, Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.optimizers import SGD, Adadelta
 
 import tensorflow as tf
@@ -55,12 +55,12 @@ def train_oracle(X_train, Y_train, X_val, Y_val):
     return model
 
 
-def substitute_model(img_rows=None, img_cols=None, channels=None,
-                     nb_classes=None):
+def substitute_model():
     print("Define substitute model")
 
     model = Sequential()
-    input_shape = (img_rows, img_cols, channels)
+    input_shape = (FLAGS.nb_rows, FLAGS.nb_cols, FLAGS.nb_channels)
+
     layers = [Flatten(input_shape=input_shape),
               Dense(200),
               Activation('relu'),
@@ -68,7 +68,31 @@ def substitute_model(img_rows=None, img_cols=None, channels=None,
               Dense(200),
               Activation('relu'),
               Dropout(0.5),
-              Dense(nb_classes),
+              Dense(FLAGS.nb_classes),
+              Activation('softmax')]
+
+    for layer in layers:
+        model.add(layer)
+
+    return model
+
+
+def substitute_model_D_on_paper():
+    print("Define substitute model on paper")
+
+    model = Sequential()
+    input_shape = (FLAGS.nb_rows, FLAGS.nb_cols, FLAGS.nb_channels)
+
+    layers = [Conv2D(32, (2, 2), padding='same', input_shape=input_shape),
+              MaxPooling2D(pool_size=(2, 2)),
+              Conv2D(64, (2, 2), padding='same'),
+              MaxPooling2D(pool_size=(2, 2)),
+              Flatten(),
+              Dense(200),
+              Activation('relu'),
+              Dense(200),
+              Activation('relu'),
+              Dense(FLAGS.nb_classes),
               Activation('softmax')]
 
     for layer in layers:
@@ -78,10 +102,8 @@ def substitute_model(img_rows=None, img_cols=None, channels=None,
 
 
 def train_sub(sess, model, x, y, denoise_model, X_sub, Y_sub):
-    model_sub = substitute_model(img_rows=FLAGS.nb_rows,
-                                 img_cols=FLAGS.nb_cols,
-                                 channels=FLAGS.nb_channels,
-                                 nb_classes=FLAGS.nb_classes)
+    # model_sub = substitute_model()
+    model_sub = substitute_model_D_on_paper()
     preds_sub = model_sub(x)
 
     print("Train substitute model")
@@ -96,6 +118,7 @@ def train_sub(sess, model, x, y, denoise_model, X_sub, Y_sub):
             'batch_size': FLAGS.batch_size,
             'learning_rate': FLAGS.learning_rate
         }
+        keras.backend.set_learning_phase(1)
         model_train(sess, x, y, preds_sub, X_sub,
                     to_categorical(Y_sub, num_classes=FLAGS.nb_classes),
                     init_all=False, verbose=False, args=train_params)
@@ -103,6 +126,7 @@ def train_sub(sess, model, x, y, denoise_model, X_sub, Y_sub):
         # If we are not at last substitute training iteration, augment dataset
         if rho < FLAGS.data_aug - 1:
             print("Augmenting substitute training data.")
+            keras.backend.set_learning_phase(0)
             # Perform the Jacobian augmentation
             X_sub = jacobian_augmentation(sess, x, X_sub, Y_sub, grads,
                                           FLAGS.lmbda)
@@ -124,7 +148,7 @@ def train_sub(sess, model, x, y, denoise_model, X_sub, Y_sub):
 
 def main(argv=None):
     start_time = time.time()
-    keras.layers.core.K.set_learning_phase(0)
+    # keras.backend.set_learning_phase(0)
     tf.set_random_seed(1234)
 
     # Create TF session and set as Keras backend session
@@ -249,8 +273,8 @@ if __name__ == '__main__':
     # DATASET = "mnist"
 
     # General flags
-    flags.DEFINE_integer('batch_size', 512, 'Size of training/predicting batches')
-    flags.DEFINE_float('learning_rate', 0.05, 'Learning rate for training')
+    flags.DEFINE_integer('batch_size', 128, 'Size of training/predicting batches')
+    flags.DEFINE_float('learning_rate', 0.001, 'Learning rate for training')
 
     # Flags related to dataset
     if DATASET == "mnist":
