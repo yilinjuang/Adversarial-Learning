@@ -239,7 +239,7 @@ def main(argv=None):
     legitimate_accuracy = np.mean(np.equal(bbox_preds,np.argmax(Y_test, axis=1)))
     print('Test accuracy of black-box on legitimate test '
           'examples: ' + str(legitimate_accuracy))
-          
+
     print("Training the substitute model.")
     # Train substitute using method from https://arxiv.org/abs/1602.02697
     substitute_preds = train_substitute(sess, x, y, bbox_preds, X_sub, Y_sub)
@@ -251,15 +251,15 @@ def main(argv=None):
 
     # Evaluate the accuracy of the "black-box" model on adversarial examples
     adv_preds=clf.predict(np.reshape(X_test_adv,(X_test_adv.shape[0],28*28)))
-    
+
     adv_accuracy = np.mean(np.equal(adv_preds,np.argmax(Y_test, axis=1)))
     print('Test accuracy of oracle on adversarial examples generated '
           'using the substitute: ' + str(adv_accuracy))
-     
+
     out={'X_test_adv':X_test_adv}
     scipy.io.savemat('X_test_adv.mat',out)
 
-     
+
     end_time = time.time()
     print ('The code for this file ran for %.2fm' % ((end_time - start_time) / 60.))
 

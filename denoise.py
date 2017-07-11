@@ -1,9 +1,10 @@
+import os
 import time
 import sys
 
-if len(sys.argv) < 2:
-    print("Missing arguments")
-    print("Usage: denoise.py <output-basename>")
+if len(sys.argv) < 3:
+    print("Error: Missing arguments")
+    print("Usage: denoise.py <dataset-basedir> <output-basedir>")
     sys.exit(1)
 
 import numpy as np
@@ -37,9 +38,9 @@ if dataset == "mnist":
 elif dataset == "gtsrb":
     # Get GTSRB data
     # http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
-    X_train, Y_train = read_training_data("/local_HDD/yljuang/GTSRB/Final_Training/Images/")
+    X_train, Y_train = read_training_data(os.path.join(sys.argv[1], "Final_Training/Images/"))
     # (39209, 32, 32, 3), (39209, 43)
-    X_test, Y_test = read_testing_data("/local_HDD/yljuang/GTSRB/Final_Test/Images/")
+    X_test, Y_test = read_testing_data(os.path.join(sys.argv[1], "Final_Test/Images/"))
     # (12630, 32, 32, 3), (12630, 43)
 else:
     print("Error: Invalid dataset.")
@@ -114,14 +115,14 @@ def main(argv=None):
 
     model.add(Conv2D(IMG_DIM[-1], (3, 3),  padding='same', data_format='channels_last'))
 
-    with open('{}.json'.format(sys.argv[1]), 'w') as f:    # save the model
+    with open('{}.json'.format(sys.argv[2]), 'w') as f:    # save the model
         f.write(model.to_json())
 
     sgd = SGD(lr=0.05, decay=5*1e-8, momentum=0.9, nesterov=True)
     model.compile(loss='mse', optimizer="Nadam", metrics=['accuracy'])
 
     print('training...')
-    checkpointer = ModelCheckpoint(filepath='{}.hdf5'.format(sys.argv[1]),
+    checkpointer = ModelCheckpoint(filepath='{}.hdf5'.format(sys.argv[2]),
                                    verbose=1,
                                    save_best_only=True,
                                    mode='min')
