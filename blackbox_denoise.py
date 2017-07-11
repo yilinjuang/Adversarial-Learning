@@ -148,7 +148,6 @@ def train_sub(sess, model, x, y, denoise_model, X_sub, Y_sub):
             'batch_size': FLAGS.batch_size,
             'learning_rate': FLAGS.learning_rate
         }
-        keras.backend.set_learning_phase(1)
         model_train(sess, x, y, preds_sub, X_sub,
                     to_categorical(Y_sub, num_classes=FLAGS.nb_classes),
                     init_all=False, verbose=False, args=train_params)
@@ -156,7 +155,6 @@ def train_sub(sess, model, x, y, denoise_model, X_sub, Y_sub):
         # If we are not at last substitute training iteration, augment dataset
         if rho < FLAGS.data_aug - 1:
             print("Augmenting substitute training data.")
-            keras.backend.set_learning_phase(0)
             # Perform the Jacobian augmentation
             X_sub = jacobian_augmentation(sess, x, X_sub, Y_sub, grads,
                                           FLAGS.lmbda)
@@ -178,7 +176,7 @@ def train_sub(sess, model, x, y, denoise_model, X_sub, Y_sub):
 
 def main(argv=None):
     start_time = time.time()
-    # keras.backend.set_learning_phase(0)
+    keras.backend.set_learning_phase(0)
     tf.set_random_seed(1234)
 
     # Create TF session and set as Keras backend session
@@ -202,14 +200,16 @@ def main(argv=None):
         Y_val = Y_train[35000:39000]
         X_train = X_train[:35000]
         Y_train = Y_train[:35000]
-        X_test = X_test[:10000]
-        Y_test = Y_test[:10000]
+        # X_test = X_test[:10000]
+        # Y_test = Y_test[:10000]
+        X_test = X_test[:3000]
+        Y_test = Y_test[:3000]
 
     if DENOISE or DENOISE_TRAIN:
-        print("Load denoise model...")
-        with open(os.path.join(sys.argv[2], ".json"), 'r') as f:
+        print("Load denoise model")
+        with open(sys.argv[2] + ".json", 'r') as f:
             denoise_model = model_from_json(f.read())
-        denoise_model.load_weights(os.path.join(sys.argv[2], ".hdf5"))
+        denoise_model.load_weights(sys.argv[2] + ".hdf5")
     else:
         denoise_model = None
 
