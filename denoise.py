@@ -32,8 +32,10 @@ if dataset == "mnist":
 elif dataset == "gtsrb":
     # Get GTSRB data
     # http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
-    X_train, Y_train = read_training_data("/tmp/GTSRB/Final_Training/Images/")  # (39209, 32, 32, 3), (39209, 43)
-    X_test, Y_test = read_testing_data("/tmp/GTSRB/Final_Test/Images/")# (12630, 32, 32, 3), (12630, 43)
+    X_train, Y_train = read_training_data("/local_HDD/yljuang/GTSRB/Final_Training/Images/")
+    # (39209, 32, 32, 3), (39209, 43)
+    X_test, Y_test = read_testing_data("/local_HDD/yljuang/GTSRB/Final_Test/Images/")
+    # (12630, 32, 32, 3), (12630, 43)
 else:
     print("Error: Invalid dataset.")
     sys.exit(1)
@@ -104,7 +106,7 @@ with open('{}.json'.format(sys.argv[1]), 'w') as f:    # save the model
     f.write(model.to_json())
 
 sgd = SGD(lr=0.05, decay=5*1e-8, momentum=0.9, nesterov=True)
-model.compile(loss='mse', optimizer="Nadam")
+model.compile(loss='mse', optimizer="Nadam", metrics=['accuracy'])
 
 print('training...')
 checkpointer = ModelCheckpoint(filepath='{}.hdf5'.format(sys.argv[1]), verbose=1, save_best_only=True, mode='min')
